@@ -4,48 +4,32 @@
 // Existing IDatabase Interface
 class IDatabase {
 public:
+    virtual ~IDatabase() {}
     virtual void connect() = 0;
     virtual void executeQuery(const std::string& query) = 0;
     virtual void disconnect() = 0;
-    virtual ~IDatabase() {}
 };
 
 // Web API Interface
 class WebAPI {
 public:
-    void openConnection() {
-        std::cout << "WebAPI Connection Opened\n";
-    }
-    void sendRequest(const std::string& request) {
-        std::cout << "Request Sent: " << request << "\n";
-    }
-    void closeConnection() {
-        std::cout << "WebAPI Connection Closed\n";
-    }
+    void openConnection() { std::cout << "Open Web API Connection\n"; }
+    void sendRequest(const std::string& request) { std::cout << "Web API Request: " << request << "\n"; }
+    void closeConnection() { std::cout << "Close Web API Connection\n"; }
 };
 
-// Adapter Class that adapts WebAPI to IDatabase
+// Adapter Class
 class WebAPIAdapter : public IDatabase {
 private:
-    WebAPI* webAPI;
+    WebAPI webAPI;
 
 public:
-    WebAPIAdapter(WebAPI* api) : webAPI(api) {}
-
-    void connect() override {
-        webAPI->openConnection();
-    }
-
-    void executeQuery(const std::string& query) override {
-        webAPI->sendRequest(query);
-    }
-
-    void disconnect() override {
-        webAPI->closeConnection();
-    }
+    void connect() override { webAPI.openConnection(); }
+    void executeQuery(const std::string& query) override { webAPI.sendRequest(query); }
+    void disconnect() override { webAPI.closeConnection(); }
 };
 
-// Application Class that uses IDatabase
+// Application Class
 class Application {
 public:
     void useDatabase(IDatabase& database) {
@@ -55,13 +39,9 @@ public:
     }
 };
 
-
 int main() {
-    WebAPI webAPI; // Instance of the Web API
-    WebAPIAdapter adapter(&webAPI); // Adapter for the Web API
-
-    Application app;
-    app.useDatabase(adapter); // Using the adapter as if it's a database
-
+    WebAPIAdapter adapter;  // Create an adapter instance
+    Application app;        // Create an application instance
+    app.useDatabase(adapter); // Use the adapter
     return 0;
 }
